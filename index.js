@@ -6,17 +6,21 @@ const multer = require("multer");
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(cors());
+// ✅ CORS Issue Fix
+app.use(cors({ origin: "*" })); // सभी Domains को Allow करें
 
-// ✅ CORS Headers Fix
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Origin", "*"); // ✅ सभी Origins को Allow करें
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
 
-const PHOTO_ROOM_API_KEY = "sandbox_1c2c30c785f6672a6a8fecac1fbf2ef32a44dd04"; // 🔥 API Key डालो
+app.options("*", (req, res) => {
+    res.sendStatus(200);
+});
+
+const PHOTO_ROOM_API_KEY = "sandbox_1c2c30c785f6672a6a8fecac1fbf2ef32a44dd04"; // 🔥 API Key
 
 app.get("/", (req, res) => {
     res.send("✅ BGCut API is running...");
@@ -52,7 +56,7 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
     }
 });
 
-// ✅ Port Issue Fix
+// ✅ Port Fix
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
