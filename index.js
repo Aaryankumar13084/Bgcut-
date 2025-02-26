@@ -6,9 +6,17 @@ const multer = require("multer");
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(cors()); // 🔥 CORS Error हटाने के लिए
+app.use(cors()); // ✅ CORS Issue Fix
 
-const PHOTO_ROOM_API_KEY = "sandbox_1c2c30c785f6672a6a8fecac1fbf2ef32a44dd04"; // 🔥 अपनी PhotoRoom API Key डालो
+// ✅ Manually CORS Headers Set करो
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*"); // ✅ सभी Origins को Allow करें
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
+
+const PHOTO_ROOM_API_KEY = "sandbox_1c2c30c785f6672a6a8fecac1fbf2ef32a44dd04"; // 🔥 अपनी API Key डालो
 
 app.post("/remove-bg", upload.single("image"), async (req, res) => {
     try {
@@ -36,5 +44,6 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
     }
 });
 
-// 🚀 Server Start करो
-app.listen(5000, () => console.log("✅ Server is running on http://localhost:5000"));
+// ✅ Server Start
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
