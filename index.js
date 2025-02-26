@@ -24,6 +24,8 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
             return res.status(400).json({ error: "No file uploaded!" });
         }
 
+        console.log("🔹 Image received, sending to PhotoRoom API...");
+
         const response = await axios.post(
             "https://sdk.photoroom.com/v1/edit/remove-background",
             req.file.buffer,
@@ -36,14 +38,12 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
             }
         );
 
+        console.log("✅ API Response Received!");
+
         res.set("Content-Type", "image/png");
         res.send(response.data);
     } catch (error) {
-        console.error("❌ Error:", error.message);
+        console.error("❌ API Error:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: "Background remove failed!" });
     }
-});
-
-// ✅ Server Start
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+}); 
