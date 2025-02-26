@@ -6,13 +6,12 @@ const multer = require("multer");
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(cors()); // ✅ CORS Issue Fix
-
-// ✅ Manually CORS Headers Set करो
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); // ✅ सभी Origins को Allow करें
+    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
 
     if (req.method === "OPTIONS") {
         return res.sendStatus(200);
@@ -32,16 +31,16 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
 
         const imageBuffer = req.file.buffer.toString("base64"); // ✅ Buffer को Base64 में Convert करो
 
-        const response = await axios.post(
-            "https://sdk.photoroom.com/v1/edit/remove-background",
-            { image_file_b64: imageBuffer },  // ✅ Base64 में Data भेजो
-            {
-                headers: {
-                    "X-Api-Key": PHOTO_ROOM_API_KEY,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+const response = await axios.post(
+    "https://sdk.photoroom.com/v1/edit/remove-background",
+    { image_file_b64: imageBuffer },  // ✅ Base64 में Data भेजो
+    {
+        headers: {
+            "X-Api-Key": PHOTO_ROOM_API_KEY,
+            "Content-Type": "application/json"
+        }
+    }
+);
 
         console.log("✅ API Response Received!");
 
