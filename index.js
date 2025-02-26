@@ -1,21 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
-const multer = require("multer");
-
 const app = express();
-const upload = multer({ storage: multer.memoryStorage() });
 
-// ✅ CORS Issue Fix
-app.use(cors({ origin: "*" })); // सभी Domains को Allow करें
+app.use(cors()); // ✅ Basic CORS Fix
 
+// ✅ Custom CORS Headers
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); // ✅ सभी Origins को Allow करें
+    res.header("Access-Control-Allow-Origin", "*"); // सभी Origins को Allow करें
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+    
     next();
 });
-
 app.options("*", (req, res) => {
     res.sendStatus(200);
 });
