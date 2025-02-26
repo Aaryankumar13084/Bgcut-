@@ -29,6 +29,7 @@ app.get("/", (req, res) => {
 app.post("/remove-bg", upload.single("image"), async (req, res) => {
     try {
         if (!req.file) {
+            console.error("❌ No file received!");
             return res.status(400).json({ error: "No file uploaded!" });
         }
 
@@ -46,18 +47,18 @@ app.post("/remove-bg", upload.single("image"), async (req, res) => {
             }
         );
 
-        console.log("✅ API Response Received!");
+        console.log("✅ API Response Status:", response.status);
+        console.log("✅ API Response Headers:", response.headers);
+
+        if (response.status !== 200) {
+            console.error("❌ PhotoRoom API Failed:", response.data);
+            return res.status(500).json({ error: "PhotoRoom API Error!" });
+        }
 
         res.set("Content-Type", "image/png");
         res.send(response.data);
     } catch (error) {
-        console.error("❌ API Error:", error.response ? error.response.data : error.message);
-        res.status(500).json({ error: "Background remove failed!" });
+        console.error("❌ API Server Error:", error.message);
+        res.status(500).json({ error: "Internal Server Error!" });
     }
-});
-
-// ✅ Port Fix
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
 });
