@@ -1,43 +1,40 @@
 const express = require("express");
-const axios = require("axios");
 const cors = require("cors");
+const axios = require("axios");
 const multer = require("multer");
 
 const app = express();
-const port = process.env.PORT || 5000; // 🚀 Railway के लिए PORT
-
-app.use(cors()); // 🚀 CORS Error Fix
 const upload = multer({ storage: multer.memoryStorage() });
 
-const ZYRO_API_URL = "https://api.zyro.com/v1/remove-bg"; // 🔥 Zyro API URL
+app.use(cors()); // 🔥 CORS Error हटाने के लिए
 
-// 🚀 Remove Background API (Zyro API)
-app.post("/remove-bg", upload.single("image_file"), async (req, res) => {
+const PHOTO_ROOM_API_KEY = "sandbox_1c2c30c785f6672a6a8fecac1fbf2ef32a44dd04"; // 🔥 अपनी PhotoRoom API Key डालो
+
+app.post("/remove-bg", upload.single("image"), async (req, res) => {
     try {
-        const formData = new FormData();
-        formData.append("image_file", req.file.buffer, "image.png");
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded!" });
+        }
 
-        const response = await axios.post(ZYRO_API_URL, formData, {
-            headers: formData.getHeaders(),
-            responseType: "arraybuffer",
-        });
+        const response = await axios.post(
+            "https://sdk.photoroom.com/v1/edit/remove-background",
+            req.file.buffer,
+            {
+                headers: {
+                    "X-Api-Key": PHOTO_ROOM_API_KEY,
+                    "Content-Type": "image/png"
+                },
+                responseType: "arraybuffer"
+            }
+        );
 
-        const imageBuffer = Buffer.from(response.data, "binary");
-        const base64Image = imageBuffer.toString("base64");
-
-        res.json({
-            success: true,
-            message: "Background removed successfully!",
-            image: `data:image/png;base64,${base64Image}`
-        });
+        res.set("Content-Type", "image/png");
+        res.send(response.data);
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error processing image",
-            error: error.response?.data || error.message
-        });
+        console.error("❌ Error:", error.message);
+        res.status(500).json({ error: "Background remove failed!" });
     }
 });
 
-app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
-
+// 🚀 Server Start करो
+app.listen(5000, () => console.log("✅ Server is running on http://localhost:5000"));
